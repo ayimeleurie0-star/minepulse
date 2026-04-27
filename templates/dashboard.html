@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}MindPulse — Dashboard{% endblock %}
+
+{% block extra_styles %}
+.dashboard-header {
+    padding: 2.5rem 0 1.5rem;
+}
+.dashboard-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+}
+.dashboard-header p { color: var(--muted); font-size: 0.9rem; }
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.kpi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+}
+.kpi-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem;
+}
+.chart-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    color: var(--text);
+}
+
+canvas { max-height: 240px; }
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+}
+.empty-state h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+}
+.empty-state p { margin-bottom: 1.5rem; }
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>📊 Live Dashboard</h1>
+    <p>Real-time descriptive analysis of student mental health responses</p>
+</div>
+
+{% if total == 0 %}
+<div class="empty-state">
+    <div style="font-size:3rem;margin-bottom:1rem">📭</div>
+    <h2>No responses yet</h2>
+    <p>Be the first to take the survey and see results appear here!</p>
+    <a href="/survey" class="btn btn-primary">Take the Survey →</a>
+</div>
+
+{% else %}
+
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-value">{{ stats.total }}</div>
+        <div class="kpi-label">Total Responses</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ stats.avg_stress }}/5</div>
+        <div class="kpi-label">Avg Stress Level</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ stats.avg_sleep }}h</div>
+        <div class="kpi-label">Avg Sleep</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ stats.avg_pressure }}/5</div>
+        <div class="kpi-label">Avg Academic Pressure</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ stats.avg_social }}/5</div>
+        <div class="kpi-label">Avg Social Life</div>
+    </div>
+</div>
+
+<div class="charts-grid">
+    <div class="chart-card">
+        <h3>😤 Stress Level Distribution</h3>
+        <canvas id="stressChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>🙂 Mood Distribution</h3>
+        <canvas id="moodChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>👤 Gender Distribution</h3>
+        <canvas id="genderChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>🏃 Physical Activity</h3>
+        <canvas id="activityChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>📚 Stress by Year of Study</h3>
+        <canvas id="stressByYearChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>🎓 Top Fields of Study</h3>
+        <canvas id="fieldsChart"></canvas>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if total > 0 %}
+<script>
+const COLORS = ['#7c6af7','#f76a8a','#6af7c8','#f7c46a','#6ab8f7','#c46af7'];
+
+Chart.defaults.color = '#7a7a9a';
+Chart.defaults.font.family = 'DM Sans';
+
+function makeChart(id, type, labels, data, options = {}) {
+    const ctx = document.getElementById(id).getContext('2d');
+    return new Chart(ctx, {
+        type,
+        data: {
+            labels,
+            datasets: [{
+                data,
+                backgroundColor: COLORS,
+                borderColor: type === 'bar' ? COLORS[0] : COLORS,
+                borderWidth: type === 'bar' ? 0 : 2,
+                borderRadius: type === 'bar' ? 6 : 0,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: type !== 'bar' },
+            },
+            scales: type === 'bar' ? {
+                x: { grid: { color: 'rgba(255,255,255,0.04)' } },
+                y: { grid: { color: 'rgba(255,255,255,0.04)' }, beginAtZero: true }
+            } : {},
+            ...options
+        }
+    });
+}
+
+// Stress distribution
+const stressDist = {{ charts.stress_dist | tojson }};
+makeChart('stressChart', 'bar',
+    stressDist.map(r => 'Level ' + r[0]),
+    stressDist.map(r => r[1])
+);
+
+// Mood
+const moodData = {{ charts.mood | tojson }};
+makeChart('moodChart', 'doughnut', Object.keys(moodData), Object.values(moodData));
+
+// Gender
+const genderData = {{ charts.gender | tojson }};
+makeChart('genderChart', 'pie', Object.keys(genderData), Object.values(genderData));
+
+// Activity
+const activityData = {{ charts.activity | tojson }};
+makeChart('activityChart', 'doughnut', Object.keys(activityData), Object.values(activityData));
+
+// Stress by year
+const stressByYear = {{ charts.stress_by_year | tojson }};
+makeChart('stressByYearChart', 'bar',
+    stressByYear.map(r => 'Year ' + r[0]),
+    stressByYear.map(r => Math.round(r[1] * 100) / 100)
+);
+
+// Top fields
+const fields = {{ charts.top_fields | tojson }};
+makeChart('fieldsChart', 'bar',
+    fields.map(r => r[0]),
+    fields.map(r => r[1])
+);
+</script>
+{% endif %}
+{% endblock %}

@@ -1,1 +1,188 @@
+{% extends "base.html" %}
+{% block title %}MindPulse — Student Mental Health Survey{% endblock %}
 
+{% block extra_styles %}
+.hero {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4rem 0;
+    position: relative;
+}
+
+.hero-tag {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--accent);
+    border-radius: 50px;
+    font-size: 0.78rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+}
+
+h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 6vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-desc {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 540px;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+}
+
+.stats-row {
+    display: flex;
+    gap: 3rem;
+    margin-top: 4rem;
+    animation: fadeUp 0.6s 0.4s ease both;
+    flex-wrap: wrap;
+}
+
+.stat-item { text-align: left; }
+.stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+.stat-label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-top: 5rem;
+}
+
+.feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: transform 0.25s, border-color 0.25s;
+}
+.feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(124, 106, 247, 0.4);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    font-size: 1.05rem;
+}
+
+.feature-card p {
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.floating-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: -1;
+}
+.orb1 {
+    width: 400px; height: 400px;
+    background: rgba(124, 106, 247, 0.12);
+    top: -100px; right: -100px;
+}
+.orb2 {
+    width: 300px; height: 300px;
+    background: rgba(247, 106, 138, 0.08);
+    bottom: 0; right: 200px;
+}
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="floating-orb orb1"></div>
+    <div class="floating-orb orb2"></div>
+    <span class="hero-tag">INF232 — Data Collection App</span>
+    <h1>Your Mind <span class="gradient-text">Matters.</span><br>Let's Talk About It.</h1>
+    <p class="hero-desc">
+        MindPulse is an anonymous survey platform studying mental health among university students. 
+        Share your experience and explore real-time insights from the community.
+    </p>
+    <div class="hero-actions">
+        <a href="/survey" class="btn btn-primary">Take the Survey →</a>
+        <a href="/dashboard" class="btn btn-outline">View Dashboard</a>
+    </div>
+    <div class="stats-row">
+        <div class="stat-item">
+            <div class="stat-num">100%</div>
+            <div class="stat-label">Anonymous</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">~3 min</div>
+            <div class="stat-label">To complete</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">Live</div>
+            <div class="stat-label">Data Analysis</div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>Smart Questions</h3>
+        <p>Carefully designed questions covering stress, sleep, social life, and academic pressure.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Live Dashboard</h3>
+        <p>See real-time descriptive statistics and charts as responses come in from your peers.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Fully Anonymous</h3>
+        <p>No personal data stored. Your privacy is our top priority — always.</p>
+    </div>
+</section>
+{% endblock %}

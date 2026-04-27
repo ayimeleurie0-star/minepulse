@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+{% block title %}MindPulse — Survey{% endblock %}
+
+{% block extra_styles %}
+.survey-header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+}
+.survey-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+}
+.survey-header p {
+    color: var(--muted);
+    font-size: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 50px;
+    margin: 1.5rem 0 2.5rem;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 50px;
+    transition: width 0.4s ease;
+    width: 0%;
+}
+
+.form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.form-section {
+    display: none;
+}
+.form-section.active {
+    display: block;
+    animation: fadeUp 0.4s ease;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.section-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 1.8rem;
+}
+
+label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    font-size: 0.95rem;
+}
+
+.sublabel {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+    display: block;
+}
+
+input[type="number"], input[type="text"], select, textarea {
+    width: 100%;
+    padding: 0.85rem 1.1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+input:focus, select:focus { border-color: var(--accent); }
+select option { background: var(--surface2); }
+
+.range-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent);
+    height: 6px;
+    cursor: pointer;
+    background: transparent;
+}
+
+.range-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--accent);
+    min-width: 2rem;
+    text-align: center;
+}
+
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.option-btn {
+    padding: 0.85rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+}
+.option-btn:hover, .option-btn.selected {
+    border-color: var(--accent);
+    background: rgba(124, 106, 247, 0.12);
+    color: var(--accent);
+}
+
+.nav-btns {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2.5rem;
+    gap: 1rem;
+}
+
+.btn-back {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+}
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.step-counter {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 1.5rem;
+}
+{% endblock %}
+
+{% block content %}
+<div class="survey-header">
+    <h1>How are you <span style="color: var(--accent);">really</span> doing?</h1>
+    <p>Anonymous · Takes ~3 minutes · Helps the community</p>
+</div>
+
+<div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+</div>
+
+<div class="form-card">
+    <form action="/submit" method="POST" id="surveyForm">
+
+        <!-- Section 1: About You -->
+        <div class="form-section active" id="section1">
+            <div class="section-label">Section 1 / 3 — About You</div>
+
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" name="age" min="16" max="40" placeholder="e.g. 20" required>
+            </div>
+
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="options-grid" id="genderOptions">
+                    <div class="option-btn" onclick="selectOption(this, 'gender', 'Male')">Male</div>
+                    <div class="option-btn" onclick="selectOption(this, 'gender', 'Female')">Female</div>
+                    <div class="option-btn" onclick="selectOption(this, 'gender', 'Non-binary')">Non-binary</div>
+                    <div class="option-btn" onclick="selectOption(this, 'gender', 'Prefer not to say')">Prefer not to say</div>
+                </div>
+                <input type="hidden" name="gender" id="gender" required>
+            </div>
+
+            <div class="form-group">
+                <label>Field of Study</label>
+                <select name="field_of_study" required>
+                    <option value="" disabled selected>Select your field</option>
+                    <option>Computer Science</option>
+                    <option>Engineering</option>
+                    <option>Medicine / Health</option>
+                    <option>Business / Economics</option>
+                    <option>Law</option>
+                    <option>Arts & Humanities</option>
+                    <option>Natural Sciences</option>
+                    <option>Social Sciences</option>
+                    <option>Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Year of Study</label>
+                <div class="options-grid" id="yearOptions">
+                    <div class="option-btn" onclick="selectOption(this, 'year_of_study', '1')">Year 1</div>
+                    <div class="option-btn" onclick="selectOption(this, 'year_of_study', '2')">Year 2</div>
+                    <div class="option-btn" onclick="selectOption(this, 'year_of_study', '3')">Year 3</div>
+                    <div class="option-btn" onclick="selectOption(this, 'year_of_study', '4')">Year 4+</div>
+                </div>
+                <input type="hidden" name="year_of_study" id="year_of_study" required>
+            </div>
+
+            <div class="nav-btns">
+                <div></div>
+                <button type="button" class="btn btn-primary" onclick="nextSection(1)">Next →</button>
+            </div>
+        </div>
+
+        <!-- Section 2: Mental Health -->
+        <div class="form-section" id="section2">
+            <div class="section-label">Section 2 / 3 — Mental Health Indicators</div>
+
+            <div class="form-group">
+                <label>Stress Level</label>
+                <span class="sublabel">How stressed do you feel in general?</span>
+                <div class="range-group">
+                    <input type="range" name="stress_level" min="1" max="5" value="3" oninput="updateRange(this, 'stressVal')">
+                    <span class="range-value" id="stressVal">3</span>
+                </div>
+                <div class="range-labels"><span>😌 Very low</span><span>😰 Very high</span></div>
+            </div>
+
+            <div class="form-group">
+                <label>Average Sleep (hours/night)</label>
+                <div class="range-group">
+                    <input type="range" name="sleep_hours" min="3" max="12" step="0.5" value="7" oninput="updateRange(this, 'sleepVal')">
+                    <span class="range-value" id="sleepVal">7</span>
+                </div>
+                <div class="range-labels"><span>3h</span><span>12h</span></div>
+            </div>
+
+            <div class="form-group">
+                <label>Academic Pressure</label>
+                <span class="sublabel">How much pressure do you feel from your studies?</span>
+                <div class="range-group">
+                    <input type="range" name="academic_pressure" min="1" max="5" value="3" oninput="updateRange(this, 'pressureVal')">
+                    <span class="range-value" id="pressureVal">3</span>
+                </div>
+                <div class="range-labels"><span>None</span><span>Extreme</span></div>
+            </div>
+
+            <div class="form-group">
+                <label>Social Life</label>
+                <span class="sublabel">How satisfied are you with your social life?</span>
+                <div class="range-group">
+                    <input type="range" name="social_life" min="1" max="5" value="3" oninput="updateRange(this, 'socialVal')">
+                    <span class="range-value" id="socialVal">3</span>
+                </div>
+                <div class="range-labels"><span>Isolated</span><span>Very active</span></div>
+            </div>
+
+            <div class="nav-btns">
+                <button type="button" class="btn-back" onclick="prevSection(2)">← Back</button>
+                <button type="button" class="btn btn-primary" onclick="nextSection(2)">Next →</button>
+            </div>
+        </div>
+
+        <!-- Section 3: Lifestyle -->
+        <div class="form-section" id="section3">
+            <div class="section-label">Section 3 / 3 — Lifestyle & Mood</div>
+
+            <div class="form-group">
+                <label>Physical Activity</label>
+                <div class="options-grid" id="activityOptions">
+                    <div class="option-btn" onclick="selectOption(this, 'physical_activity', 'Never')">🛋️ Never</div>
+                    <div class="option-btn" onclick="selectOption(this, 'physical_activity', 'Rarely')">🚶 Rarely</div>
+                    <div class="option-btn" onclick="selectOption(this, 'physical_activity', 'Sometimes')">🏃 Sometimes</div>
+                    <div class="option-btn" onclick="selectOption(this, 'physical_activity', 'Often')">💪 Often</div>
+                </div>
+                <input type="hidden" name="physical_activity" id="physical_activity" required>
+            </div>
+
+            <div class="form-group">
+                <label>Current Mood</label>
+                <span class="sublabel">How would you describe your overall mood lately?</span>
+                <div class="options-grid" id="moodOptions">
+                    <div class="option-btn" onclick="selectOption(this, 'mood', 'Great')">😄 Great</div>
+                    <div class="option-btn" onclick="selectOption(this, 'mood', 'Good')">🙂 Good</div>
+                    <div class="option-btn" onclick="selectOption(this, 'mood', 'Neutral')">😐 Neutral</div>
+                    <div class="option-btn" onclick="selectOption(this, 'mood', 'Low')">😔 Low</div>
+                    <div class="option-btn" onclick="selectOption(this, 'mood', 'Overwhelmed')">😩 Overwhelmed</div>
+                </div>
+                <input type="hidden" name="mood" id="mood" required>
+            </div>
+
+            <div class="nav-btns">
+                <button type="button" class="btn-back" onclick="prevSection(3)">← Back</button>
+                <button type="submit" class="btn btn-primary">Submit Survey ✓</button>
+            </div>
+        </div>
+
+    </form>
+    <div class="step-counter" id="stepCounter">Step 1 of 3</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentSection = 1;
+const totalSections = 3;
+
+function updateProgress() {
+    const pct = ((currentSection - 1) / totalSections) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('stepCounter').textContent = `Step ${currentSection} of ${totalSections}`;
+}
+
+function nextSection(current) {
+    document.getElementById('section' + current).classList.remove('active');
+    currentSection = current + 1;
+    document.getElementById('section' + currentSection).classList.add('active');
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevSection(current) {
+    document.getElementById('section' + current).classList.remove('active');
+    currentSection = current - 1;
+    document.getElementById('section' + currentSection).classList.add('active');
+    updateProgress();
+}
+
+function updateRange(input, displayId) {
+    document.getElementById(displayId).textContent = input.value;
+}
+
+function selectOption(el, fieldId, value) {
+    const parent = el.parentElement;
+    parent.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById(fieldId).value = value;
+}
+
+updateProgress();
+</script>
+{% endblock %}
