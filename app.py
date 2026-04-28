@@ -126,7 +126,8 @@ def api_stats():
     rows = c.fetchall()
     conn.close()
     return jsonify(rows)
+    
+ init_db()
 
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True)
