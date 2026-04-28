@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
-DB_PATH = "/tmp/response.db"
+DB_PATH = "/tmp/responses.db"
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
@@ -126,8 +126,8 @@ def api_stats():
     rows = c.fetchall()
     conn.close()
     return jsonify(rows)
-    
- init_db()
+
+init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
