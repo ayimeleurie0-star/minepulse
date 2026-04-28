@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
-DB_PATH = "responses.db"
+DB_PATH = "/tmp/response.db"
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
